@@ -15,6 +15,24 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
+app.get("/userByMail", async (req, res) => {
+  try {
+    const userList = await User.find({ mail: "kaushikd207@gmail.com" });
+    res.send(userList);
+  } catch (err) {
+    res.send(" user Not found");
+  }
+});
+
+app.get("/feed", async (req, res) => {
+  try {
+    const userList = await User.find({});
+    res.send(userList);
+  } catch (err) {
+    res.send("Not found any user");
+  }
+});
+
 connectDB()
   .then(() => {
     console.log("Database connected successfully!");
