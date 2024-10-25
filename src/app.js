@@ -1,23 +1,14 @@
 const express = require("express");
-
+const connectDB = require("./config/database");
 const app = express();
 
-app.use(
-  "/user",
-  [
-    (req, res, next) => {
-      console.log("user path");
-      next();
-    },
-    (req, res, next) => {
-      next();
-      res.send("1 router");
-    },
-  ],
-  (req, res, next) => {
-    res.send("2 router");
-  }
-);
-app.listen(3002, () => {
-  console.log("Server is listening at port 3002..");
-});
+connectDB()
+  .then(() => {
+    console.log("Database connected successfully!");
+    app.listen(3002, () => {
+      console.log("Server is listening at port 3002..");
+    });
+  })
+  .catch((err) => {
+    console.log("Database connection failed!");
+  });
