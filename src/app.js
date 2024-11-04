@@ -2,11 +2,22 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
+
 app.post("/signUp", async (req, res) => {
-  const userData = req.body;
-  const user = new User(userData);
+  const { firstName, lastName, mail, password, gender, phone } = req.body;
+  const hashPassword = await bcrypt.hash(password, 10);
+  const user = new User({
+    firstName,
+    lastName,
+    mail,
+    password: hashPassword,
+    gender,
+    phone,
+  });
+
   try {
     await user.save();
     res.send(" User added successfully");
@@ -15,9 +26,28 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
-app.get("/userByMail", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
-    const userList = await User.find({ mail: "kaushikd207@gmail.com" });
+    const { mail, password } = req.body;
+    const user = await User.findOne({ mail: mail });
+    if (!user) {
+      res.send("Please check your mail");
+    }
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (isValidPassword) {
+      res.send("Login Successfully!!");
+    } else {
+      res.send("Invalid Password!!");
+    }
+  } catch (err) {
+    res.status(400).send("User not Found " + err.message);
+  }
+});
+
+app.post("/userByMail", async (req, res) => {
+  const { mail } = req.body;
+  try {
+    const userList = await User.findOne({ mail: mail });
     res.send(userList);
   } catch (err) {
     res.send(" user Not found");
